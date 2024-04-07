@@ -10,22 +10,21 @@ const TokenType = new GraphQLObjectType({
   },
 });
 
-const MutationTokenType = new GraphQLObjectType({
-  name: 'MutationToken',
-  fields: {
-    createToken: {
-      type: TokenType,
-      args: {
-        email: { type: GraphQLString },
-      },
-      resolve: async (parent, args) => {
-        const { email } = args;
-        const token = jwt.sign({ email }, process.env.SECRET || '');
-        await Token.create({ email, token });
-        return { email, token };
-      },
-    },
-  },
-});
+interface CreateTokenArgs {
+  email: string;
+}
 
-export { TokenType, MutationTokenType };
+const createTokenResolver = async (_: any, args: CreateTokenArgs) => {
+  const { email } = args;
+  const token = jwt.sign({ email }, process.env.SECRET || '');
+  await Token.create({ email, token });
+  return { email, token };
+};
+
+export const createToken = {
+  type: TokenType,
+  args: {
+    email: { type: GraphQLString },
+  },
+  resolve: createTokenResolver,
+};
