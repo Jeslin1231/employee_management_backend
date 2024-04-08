@@ -16,6 +16,18 @@ const AuthSchema = new Schema({
     type: String,
     required: true,
   },
+  role: {
+    type: String,
+    enum: ['normal', 'hr'],
+    default: 'normal',
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ['unsubmitted', 'pending', 'approved', 'rejected'],
+    default: 'unsubmitted',
+    required: true,
+  },
 });
 
 const Auth = mongoose.model('Auth', AuthSchema);
