@@ -33,3 +33,14 @@ export class InternalServerError extends GraphQLError {
     };
   }
 }
+
+export class UnauthorizedError extends GraphQLError {
+  extensions: GraphQLErrorExtensions;
+  constructor(message: string, code: string) {
+    super(message);
+    this.extensions = {
+      status: 401,
+      code,
+    };
+  }
+}

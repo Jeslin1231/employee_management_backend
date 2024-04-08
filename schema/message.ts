@@ -5,6 +5,7 @@ export const MessageType = new GraphQLObjectType({
   fields: {
     api: { type: GraphQLString },
     type: { type: GraphQLString },
+    status: { type: GraphQLString },
     message: { type: GraphQLString },
   },
 });

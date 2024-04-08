@@ -27,7 +27,7 @@ const RegisterResolver = async (_: any, args: SignupArgs) => {
   try {
     const auth = new Auth({ username, email, password: encryptedPassword });
     await auth.save();
-    return { api: 'signup', type: 'mutation', message: 'User created' };
+    return { api: 'register', type: 'mutation', message: 'User created' };
   } catch (error) {
     throw new InternalServerError('Failed to create user');
   }
