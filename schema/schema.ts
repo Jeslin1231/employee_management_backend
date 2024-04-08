@@ -1,6 +1,6 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 import { checkToken, createToken } from './token';
-import { register } from './auth';
+import { login, register } from './auth';
 
 const Message = new GraphQLObjectType({
   name: 'Hello',
@@ -22,6 +22,7 @@ const schema = new GraphQLSchema({
         }),
       },
       checkToken: checkToken,
+      login: login,
     },
   }),
   mutation: new GraphQLObjectType({

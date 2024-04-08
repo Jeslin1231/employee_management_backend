@@ -10,3 +10,10 @@ export const cryptPassword = async (password: string) => {
     throw new InternalServerError('Failed to encrypt password');
   }
 };
+
+export const comparePassword = async (
+  password: string,
+  hashedPassword: string,
+) => {
+  return await bcrypt.compare(password, hashedPassword);
+};
