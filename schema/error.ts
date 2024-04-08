@@ -16,7 +16,7 @@ export class InvalidInputError extends GraphQLError {
   constructor(message: string, field: string) {
     super(message);
     this.extensions = {
-      status: 500,
+      status: 400,
       code: 'INVALID_INPUT',
       field,
     };
