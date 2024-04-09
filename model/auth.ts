@@ -28,6 +28,10 @@ const AuthSchema = new Schema({
     default: 'unsubmitted',
     required: true,
   },
+  employee: {
+    type: Schema.Types.ObjectId,
+    ref: 'Employee',
+  },
 });
 
 const Auth = mongoose.model('Auth', AuthSchema);
