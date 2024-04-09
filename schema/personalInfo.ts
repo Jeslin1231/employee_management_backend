@@ -1,11 +1,15 @@
-import { GraphQLString, GraphQLList, GraphQLInputObjectType } from 'graphql';
+import {
+  GraphQLString,
+  GraphQLList,
+  GraphQLObjectType,
+  GraphQLInputObjectType,
+} from 'graphql';
 import Employee, { EmergencyContact } from '../model/employee';
-import { MessageType } from './message';
 import { InvalidInputError } from './error';
 import DateScalar from './date';
 
 // name part
-interface NameArgs {
+interface NameSectionArgs {
   avatar: string;
   email: string;
   firstName: string;
@@ -17,9 +21,24 @@ interface NameArgs {
   gender: 'Male' | 'Female';
 }
 
-const updateNameResolver = async (
-  _parent: any,
-  args: NameArgs,
+const NameSectionType = new GraphQLObjectType({
+  name: 'NameSectionInput',
+  fields: {
+    avatar: { type: GraphQLString },
+    email: { type: GraphQLString },
+    firstName: { type: GraphQLString },
+    middleName: { type: GraphQLString },
+    lastName: { type: GraphQLString },
+    preferredName: { type: GraphQLString },
+    ssn: { type: GraphQLString },
+    dateOfBirth: { type: DateScalar },
+    gender: { type: GraphQLString },
+  },
+});
+
+const updateNameSectionResolver = async (
+  parent: any,
+  args: NameSectionArgs,
   context: any,
 ) => {
   const {
@@ -38,7 +57,7 @@ const updateNameResolver = async (
       throw new InvalidInputError('Unauthorized', 'UNAUTHORIZED');
     }
     const userId = context.userId;
-    const employee = await Employee.findById(userId);
+    const employee = await Employee.findOne(userId);
     // If employee not found, throw an error
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'employee');
@@ -75,8 +94,8 @@ const updateNameResolver = async (
   }
 };
 
-export const updateName = {
-  type: MessageType,
+export const updateNameSection = {
+  type: NameSectionType,
   args: {
     avatar: { type: GraphQLString },
     email: { type: GraphQLString },
@@ -88,16 +107,16 @@ export const updateName = {
     dateOfBirth: { type: DateScalar },
     gender: { type: GraphQLString },
   },
-  resolve: updateNameResolver,
+  resolve: updateNameSectionResolver,
 };
 
-const getNameResolver = async (_parent: any, _args: any, context: any) => {
+const getNameSectionResolver = async (_parent: any, context: any) => {
   try {
     if (!context.authorized) {
       throw new InvalidInputError('Unauthorized', 'UNAUTHORIZED');
     }
     const userId = context.userId;
-    const employee = await Employee.findById(userId);
+    const employee = await Employee.findOne(userId);
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'employee');
     }
@@ -117,13 +136,13 @@ const getNameResolver = async (_parent: any, _args: any, context: any) => {
   }
 };
 
-export const getName = {
-  type: MessageType,
-  resolve: getNameResolver,
+export const getNameSection = {
+  type: NameSectionType,
+  resolve: getNameSectionResolver,
 };
 
 // address part
-interface addressArgs {
+interface addressSectionArgs {
   streetAddress: string;
   Apartment: string;
   city: string;
@@ -131,9 +150,20 @@ interface addressArgs {
   zip: string;
 }
 
-const updateAddressResolver = async (
+const AddressSectionType = new GraphQLObjectType({
+  name: 'AddressSection',
+  fields: {
+    streetAddress: { type: GraphQLString },
+    Apartment: { type: GraphQLString },
+    city: { type: GraphQLString },
+    state: { type: GraphQLString },
+    zip: { type: GraphQLString },
+  },
+});
+
+const updateAddressSectionResolver = async (
   _parent: any,
-  args: addressArgs,
+  args: addressSectionArgs,
   context: any,
 ) => {
   const { streetAddress, Apartment, city, state, zip } = args;
@@ -142,7 +172,7 @@ const updateAddressResolver = async (
       throw new InvalidInputError('Unauthorized', 'UNAUTHORIZED');
     }
     const userId = context.userId;
-    const employee = await Employee.findById(userId);
+    const employee = await Employee.findOne(userId);
     // If employee not found, throw an error
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'employee');
@@ -171,26 +201,25 @@ const updateAddressResolver = async (
   }
 };
 
-export const updateAddress = {
-  type: MessageType,
+export const updateAddressSection = {
+  type: AddressSectionType,
   args: {
-    token: { type: GraphQLString },
     streetAddress: { type: GraphQLString },
     Apartment: { type: GraphQLString },
     city: { type: GraphQLString },
     state: { type: GraphQLString },
     zip: { type: GraphQLString },
   },
-  resolve: updateAddressResolver,
+  resolve: updateAddressSectionResolver,
 };
 
-const getAddressResolver = async (_parent: any, _args: any, context: any) => {
+const getAddressSectionResolver = async (_parent: any, context: any) => {
   try {
     if (!context.authorized) {
       throw new InvalidInputError('Unauthorized', 'UNAUTHORIZED');
     }
     const userId = context.userId;
-    const employee = await Employee.findById(userId);
+    const employee = await Employee.findOne(userId);
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'employee');
     }
@@ -206,21 +235,29 @@ const getAddressResolver = async (_parent: any, _args: any, context: any) => {
   }
 };
 
-export const getAddress = {
-  type: MessageType,
-  resolve: getAddressResolver,
+export const getAddressSection = {
+  type: AddressSectionType,
+  resolve: getAddressSectionResolver,
 };
 
 // contact part
 
-interface contactArgs {
+interface contactSectionArgs {
   cellPhone: string;
   workPhone: string;
 }
 
-const updateContactResolver = async (
+const ContactSectionType = new GraphQLObjectType({
+  name: 'ContactSection',
+  fields: {
+    cellPhone: { type: GraphQLString },
+    workPhone: { type: GraphQLString },
+  },
+});
+
+const updateContactSectionResolver = async (
   _parent: any,
-  args: contactArgs,
+  args: contactSectionArgs,
   context: any,
 ) => {
   const { cellPhone, workPhone } = args;
@@ -229,7 +266,7 @@ const updateContactResolver = async (
       throw new InvalidInputError('Unauthorized', 'UNAUTHORIZED');
     }
     const userId = context.userId;
-    const employee = await Employee.findById(userId);
+    const employee = await Employee.findOne(userId);
     // If employee not found, throw an error
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'employee');
@@ -252,23 +289,22 @@ const updateContactResolver = async (
   }
 };
 
-export const updateContact = {
-  type: MessageType,
+export const updateContactSection = {
+  type: ContactSectionType,
   args: {
-    token: { type: GraphQLString },
     cellPhone: { type: GraphQLString },
     workPhone: { type: GraphQLString },
   },
-  resolve: updateContactResolver,
+  resolve: updateContactSectionResolver,
 };
 
-const getContactResolver = async (_parent: any, _args: any, context: any) => {
+const getContactSectionResolver = async (_parent: any, context: any) => {
   try {
     if (!context.authorized) {
       throw new InvalidInputError('Unauthorized', 'UNAUTHORIZED');
     }
     const userId = context.userId;
-    const employee = await Employee.findById(userId);
+    const employee = await Employee.findOne(userId);
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'employee');
     }
@@ -282,20 +318,29 @@ const getContactResolver = async (_parent: any, _args: any, context: any) => {
 };
 
 export const getContact = {
-  type: MessageType,
-  resolve: getContactResolver,
+  type: ContactSectionType,
+  resolve: getContactSectionResolver,
 };
 
 // Employment part
-interface employmentArgs {
+interface employmentSectionArgs {
   visaType: string;
   visaStartDate: Date;
   visaEndDate: Date;
 }
 
-const updateEmploymentResolver = async (
+const EmploymentSectionType = new GraphQLObjectType({
+  name: 'EmploymentSection',
+  fields: {
+    visaType: { type: GraphQLString },
+    visaStartDate: { type: DateScalar },
+    visaEndDate: { type: DateScalar },
+  },
+});
+
+const updateEmploymentSectionResolver = async (
   _parent: any,
-  args: employmentArgs,
+  args: employmentSectionArgs,
   context: any,
 ) => {
   const { visaType, visaStartDate, visaEndDate } = args;
@@ -304,7 +349,7 @@ const updateEmploymentResolver = async (
       throw new InvalidInputError('Unauthorized', 'UNAUTHORIZED');
     }
     const userId = context.userId;
-    const employee = await Employee.findById(userId);
+    const employee = await Employee.findOne(userId);
     // If employee not found, throw an error
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'employee');
@@ -329,28 +374,23 @@ const updateEmploymentResolver = async (
   }
 };
 
-export const updateEmployment = {
-  type: MessageType,
+export const updateEmploymentSection = {
+  type: EmploymentSectionType,
   args: {
-    token: { type: GraphQLString },
     visaType: { type: GraphQLString },
     visaStartDate: { type: DateScalar },
     visaEndDate: { type: DateScalar },
   },
-  resolve: updateEmploymentResolver,
+  resolve: updateEmploymentSectionResolver,
 };
 
-const getEmploymentResolver = async (
-  _parent: any,
-  _args: any,
-  context: any,
-) => {
+const getEmploymentSectionResolver = async (_parent: any, context: any) => {
   try {
     if (!context.authorized) {
       throw new InvalidInputError('Unauthorized', 'UNAUTHORIZED');
     }
     const userId = context.userId;
-    const employee = await Employee.findById(userId);
+    const employee = await Employee.findOne(userId);
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'employee');
     }
@@ -364,19 +404,57 @@ const getEmploymentResolver = async (
   }
 };
 
-export const getEmployment = {
-  type: MessageType,
-  resolve: getEmploymentResolver,
+export const getEmploymentSection = {
+  type: EmploymentSectionType,
+  resolve: getEmploymentSectionResolver,
 };
 
 // Emergency Contact part
-interface EmergencyContactArgs {
+interface EmergencyContactSectionArgs {
   contacts: EmergencyContact[];
 }
 
-const updateEmergencyContactResolver = async (
+const EmergencyContactInputType = new GraphQLInputObjectType({
+  name: 'EmergencyContact',
+  fields: {
+    firstName: { type: GraphQLString },
+    lastName: { type: GraphQLString },
+    middleName: { type: GraphQLString },
+    cellPhone: { type: GraphQLString },
+    email: { type: GraphQLString },
+    relationship: { type: GraphQLString },
+  },
+});
+
+const EmergencyContactOutputType = new GraphQLObjectType({
+  name: 'EmergencyContact',
+  fields: {
+    firstName: { type: GraphQLString },
+    lastName: { type: GraphQLString },
+    middleName: { type: GraphQLString },
+    cellPhone: { type: GraphQLString },
+    email: { type: GraphQLString },
+    relationship: { type: GraphQLString },
+  },
+});
+
+const emergencyContactSectionListOutput = new GraphQLList(
+  EmergencyContactOutputType,
+);
+const emergencyContactSectionListInput = new GraphQLList(
+  EmergencyContactInputType,
+);
+
+const EmergencyContactSectionType = new GraphQLObjectType({
+  name: 'EmergencyContactSection',
+  fields: {
+    contacts: { type: emergencyContactSectionListOutput },
+  },
+});
+
+const updateEmergencyContactSectionResolver = async (
   _parent: any,
-  args: EmergencyContactArgs,
+  args: EmergencyContactSectionArgs,
   context: any,
 ) => {
   try {
@@ -385,7 +463,7 @@ const updateEmergencyContactResolver = async (
     }
 
     const userId = context.userId;
-    const employee = await Employee.findById(userId);
+    const employee = await Employee.findOne(userId);
 
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'employee');
@@ -409,30 +487,16 @@ const updateEmergencyContactResolver = async (
   }
 };
 
-const EmergencyContactInputType = new GraphQLInputObjectType({
-  name: 'EmergencyContactInput',
-  fields: {
-    firstName: { type: GraphQLString },
-    lastName: { type: GraphQLString },
-    middleName: { type: GraphQLString },
-    cellPhone: { type: GraphQLString },
-    email: { type: GraphQLString },
-    relationship: { type: GraphQLString },
-  },
-});
-
-export const updateEmergencyContact = {
-  type: MessageType,
+export const updateEmergencyContactSection = {
+  type: EmergencyContactSectionType,
   args: {
-    token: { type: GraphQLString },
-    contacts: { type: new GraphQLList(EmergencyContactInputType) },
+    contacts: { type: emergencyContactSectionListInput },
   },
-  resolve: updateEmergencyContactResolver,
+  resolve: updateEmergencyContactSectionResolver,
 };
 
-const getEmergencyContactResolver = async (
+const getEmergencyContactSectionResolver = async (
   _parent: any,
-  _args: any,
   context: any,
 ) => {
   try {
@@ -441,7 +505,7 @@ const getEmergencyContactResolver = async (
     }
 
     const userId = context.userId;
-    const employee = await Employee.findById(userId);
+    const employee = await Employee.findOne(userId);
 
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'employee');
@@ -458,7 +522,7 @@ const getEmergencyContactResolver = async (
   }
 };
 
-export const getEmergencyContact = {
-  type: MessageType,
-  resolve: getEmergencyContactResolver,
+export const getEmergencyContactSection = {
+  type: EmergencyContactSectionType,
+  resolve: getEmergencyContactSectionResolver,
 };

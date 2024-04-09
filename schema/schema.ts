@@ -2,16 +2,16 @@ import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 import { checkToken, createToken } from './token';
 import { login, register } from './user';
 import {
-  updateName,
-  updateAddress,
-  updateContact,
-  updateEmployment,
-  updateEmergencyContact,
-  getName,
-  getAddress,
+  updateNameSection,
+  updateAddressSection,
+  updateContactSection,
+  updateEmploymentSection,
+  updateEmergencyContactSection,
+  getNameSection,
+  getAddressSection,
   getContact,
-  getEmergencyContact,
-  getEmployment,
+  getEmergencyContactSection,
+  getEmploymentSection,
 } from './personalInfo';
 
 const Message = new GraphQLObjectType({
@@ -35,11 +35,11 @@ const schema = new GraphQLSchema({
       },
       checkToken: checkToken,
       login: login,
-      getName: getName,
-      getAddress: getAddress,
-      getContact: getContact,
-      getEmergencyContact: getEmergencyContact,
-      getEmployment: getEmployment,
+      getNameSection: getNameSection,
+      getAddressSection: getAddressSection,
+      getContactSection: getContact,
+      getEmergencyContactSection: getEmergencyContactSection,
+      getEmploymentSection: getEmploymentSection,
     },
   }),
   mutation: new GraphQLObjectType({
@@ -47,11 +47,11 @@ const schema = new GraphQLSchema({
     fields: {
       createToken: createToken,
       register: register,
-      updateName: updateName,
-      updateAddress: updateAddress,
-      updateContact: updateContact,
-      updateEmployment: updateEmployment,
-      updateEmergencyContact: updateEmergencyContact,
+      updateNameSection: updateNameSection,
+      updateAddressSection: updateAddressSection,
+      updateContactSection: updateContactSection,
+      updateEmploymentSection: updateEmploymentSection,
+      updateEmergencyContactSection: updateEmergencyContactSection,
     },
   }),
 });
