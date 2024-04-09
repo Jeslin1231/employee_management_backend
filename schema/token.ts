@@ -14,8 +14,16 @@ const TokenType = new GraphQLObjectType({
 
 const createTokenResolver = async (_: any, args: { email: string }) => {
   const { email } = args;
-  const token = jwt.sign({ email }, process.env.SECRET || '');
-  await Token.create({ email, token });
+  const token = jwt.sign({ email }, process.env.SECRET || '', {
+    expiresIn: 180,
+  });
+  const tokenModel = await Token.findOne({ email });
+  if (tokenModel) {
+    await tokenModel.updateOne({ token, createdAt: new Date() });
+  } else {
+    const newToken = new Token({ email, token });
+    await newToken.save();
+  }
   return { email, token };
 };
 
@@ -36,6 +44,14 @@ const checkTokenResolver = async (_: any, args: { token: string }) => {
       'INVALID_REGISTRATION_TOKEN',
     );
   } else {
+    try {
+      jwt.verify(token, process.env.SECRET || '');
+    } catch (error) {
+      throw new UnauthorizedError(
+        'Invalid registration token',
+        'INVALID_REGISTRATION_TOKEN',
+      );
+    }
     return {
       api: 'checkToken',
       type: 'query',

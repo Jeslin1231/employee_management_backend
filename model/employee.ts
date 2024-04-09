@@ -45,7 +45,7 @@ export interface IEmployee extends Document {
 const EmployeeSchema = new Schema<IEmployee>({
   user: {
     type: Schema.Types.ObjectId,
-    ref: 'Auth',
+    ref: 'User',
   },
   firstName: {
     type: String,
