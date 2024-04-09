@@ -73,10 +73,7 @@ const LoginResolver = async (_: any, args: LoginArgs) => {
     return {
       id: HR_user,
       token,
-      username: HR_user,
-      email: HR_user,
-      role: HR_user,
-      status: HR_user,
+      role: 'hr',
     };
   }
   const user = await Auth.findOne({ username });
