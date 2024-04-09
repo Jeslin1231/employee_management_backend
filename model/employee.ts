@@ -1,7 +1,48 @@
 import mongoose from 'mongoose';
-import { Schema } from 'mongoose';
+import { Document, Schema } from 'mongoose';
 
-const EmployeeSchema = new Schema({
+export interface EmergencyContact {
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  cellPhone: string;
+  email: string;
+  relationship: string;
+}
+
+export interface IEmployee extends Document {
+  user: mongoose.Types.ObjectId;
+  firstName: string;
+  lastName: string;
+  middleName?: string;
+  preferredName?: string;
+  email: string;
+  avatar?: string;
+  ssn: string;
+  dateOfBirth: Date;
+  gender: 'Male' | 'Female';
+  Apartment?: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  zip: string;
+  cellPhone: string;
+  workPhone?: string;
+  visaType?: string;
+  visaStartDate?: Date;
+  visaEndDate?: Date;
+  referredBy?: {
+    referrer: mongoose.Types.ObjectId;
+    relationship: string;
+  };
+  emergencyContacts: EmergencyContact[];
+  documents: {
+    file: string;
+    type: string;
+  }[];
+}
+
+const EmployeeSchema = new Schema<IEmployee>({
   user: {
     type: Schema.Types.ObjectId,
     ref: 'Auth',
@@ -127,5 +168,5 @@ const EmployeeSchema = new Schema({
   ],
 });
 
-const Employee = mongoose.model('Employee', EmployeeSchema);
+const Employee = mongoose.model<IEmployee>('Employee', EmployeeSchema);
 export default Employee;

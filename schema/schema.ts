@@ -1,6 +1,18 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 import { checkToken, createToken } from './token';
 import { login, register } from './user';
+import {
+  updateName,
+  updateAddress,
+  updateContact,
+  updateEmployment,
+  updateEmergencyContact,
+  getName,
+  getAddress,
+  getContact,
+  getEmergencyContact,
+  getEmployment,
+} from './personalInfo';
 
 const Message = new GraphQLObjectType({
   name: 'Hello',
@@ -23,6 +35,11 @@ const schema = new GraphQLSchema({
       },
       checkToken: checkToken,
       login: login,
+      getName: getName,
+      getAddress: getAddress,
+      getContact: getContact,
+      getEmergencyContact: getEmergencyContact,
+      getEmployment: getEmployment,
     },
   }),
   mutation: new GraphQLObjectType({
@@ -30,6 +47,11 @@ const schema = new GraphQLSchema({
     fields: {
       createToken: createToken,
       register: register,
+      updateName: updateName,
+      updateAddress: updateAddress,
+      updateContact: updateContact,
+      updateEmployment: updateEmployment,
+      updateEmergencyContact: updateEmergencyContact,
     },
   }),
 });
