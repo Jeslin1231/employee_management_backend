@@ -7,14 +7,6 @@ const TokenSchema = new Schema({
     required: true,
     unique: true,
   },
-  user: {
-    type: Schema.Types.ObjectId,
-    ref: 'Auth',
-  },
-  fullName: {
-    type: String,
-    // required: true,
-  },
   token: {
     type: String,
     required: true,
@@ -23,7 +15,7 @@ const TokenSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    // expires: 180,
+    expires: 180,
   },
 });
 

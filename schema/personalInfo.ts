@@ -1,5 +1,5 @@
 import { GraphQLString } from 'graphql';
-// import jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import Employee from '../model/employee';
 import { MessageType } from './message';
 import { InvalidInputError } from './error';
@@ -14,12 +14,12 @@ interface NameArgs {
   preferredName: string;
   ssn: string;
   dateOfBirth: string;
-  gender: string;
+  gender: 'Male' | 'Female';
 }
 
-const createNameResolver = async (_parent: any, args: NameArgs) => {
+const updateNameResolver = async (_parent: any, args: NameArgs) => {
   const {
-    // token,
+    token,
     avatar,
     email,
     firstName,
@@ -30,30 +30,30 @@ const createNameResolver = async (_parent: any, args: NameArgs) => {
     dateOfBirth,
     gender,
   } = args;
-  // console.log(args)
   try {
-    //     const decodedToken: any = jwt.verify(token, process.env.JWT_SECRET || '');
-    // if (!decodedToken) {
-    //     throw new InvalidInputError(
-    //         'Wrong Token',
-    //         'token'
-    //     );
-    // }
+    const decodedToken: any = jwt.verify(token, process.env.JWT_SECRET || '');
+    if (!decodedToken) {
+      throw new InvalidInputError('Wrong Token', 'token');
+    }
+    const userId = decodedToken.id;
 
-    // const userId = decodedToken.id;
+    const employee = await Employee.findById(userId);
+    // If employee not found, throw an error
+    if (!employee) {
+      throw new InvalidInputError('Employee not found', 'employee');
+    }
 
-    const employee = new Employee({
-      avatar,
-      email,
-      firstName,
-      middleName,
-      lastName,
-      preferredName,
-      ssn,
-      dateOfBirth,
-      gender,
-    });
-    console.log(employee);
+    // Update the employee's information
+    employee.avatar = avatar;
+    employee.email = email;
+    employee.firstName = firstName;
+    employee.middleName = middleName;
+    employee.lastName = lastName;
+    employee.preferredName = preferredName;
+    employee.ssn = ssn;
+    // employee.dateOfBirth = dateOfBirth;
+    employee.gender = gender;
+
     await employee.save();
     return {
       avatar,
@@ -74,7 +74,7 @@ const createNameResolver = async (_parent: any, args: NameArgs) => {
   }
 };
 
-export const createName = {
+export const updateName = {
   type: MessageType,
   args: {
     token: { type: GraphQLString },
@@ -88,5 +88,5 @@ export const createName = {
     dateOfBirth: { type: GraphQLString },
     gender: { type: GraphQLString },
   },
-  resolve: createNameResolver,
+  resolve: updateNameResolver,
 };

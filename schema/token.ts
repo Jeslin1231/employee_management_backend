@@ -14,9 +14,7 @@ const TokenType = new GraphQLObjectType({
 
 const createTokenResolver = async (_: any, args: { email: string }) => {
   const { email } = args;
-  const token = jwt.sign({ email }, process.env.SECRET || '', {
-    expiresIn: '3hr',
-  });
+  const token = jwt.sign({ email }, process.env.SECRET || '');
   await Token.create({ email, token });
   return { email, token };
 };

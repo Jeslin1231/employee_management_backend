@@ -2,7 +2,6 @@ import { GraphQLString, GraphQLObjectType } from 'graphql';
 import { MessageType } from './message';
 import { InternalServerError, InvalidInputError } from './error';
 import Auth from '../model/auth';
-import Token from '../model/token';
 import { comparePassword, cryptPassword } from './password';
 import jwt from 'jsonwebtoken';
 
@@ -26,17 +25,9 @@ const RegisterResolver = async (_: any, args: SignupArgs) => {
     throw new InvalidInputError('Email already existed', 'email');
   }
 
-  const tokenInfo = await Token.findOne({ email });
-  if (!tokenInfo) {
-    throw new InvalidInputError('Token with this email not found', 'token');
-  }
-
   try {
     const auth = new Auth({ username, email, password: encryptedPassword });
     await auth.save();
-
-    tokenInfo.user = auth._id;
-    await tokenInfo.save();
     return { api: 'register', type: 'mutation', message: 'User created' };
   } catch (error) {
     throw new InternalServerError('Failed to create user');
