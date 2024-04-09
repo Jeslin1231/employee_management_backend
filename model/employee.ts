@@ -2,13 +2,17 @@ import mongoose from 'mongoose';
 import { Schema } from 'mongoose';
 
 const EmployeeSchema = new Schema({
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'Auth',
+  },
   firstName: {
     type: String,
-    required: true,
+    // required: true,
   },
   lastName: {
     type: String,
-    required: true,
+    // required: true,
   },
   middleName: {
     type: String,
@@ -18,7 +22,7 @@ const EmployeeSchema = new Schema({
   },
   email: {
     type: String,
-    required: true,
+    // required: true,
     unique: true,
   },
   avatar: {
@@ -26,40 +30,40 @@ const EmployeeSchema = new Schema({
   },
   ssn: {
     type: String,
-    required: true,
+    // required: true,
     unique: true,
   },
   dateOfBirth: {
     type: Date,
-    required: true,
+    // required: true,
   },
   gender: {
     type: String,
     enum: ['Male', 'Female'],
-    required: true,
+    // required: true,
   },
   Apartment: {
     type: String,
   },
   streetAddress: {
     type: String,
-    required: true,
+    // required: true,
   },
   city: {
     type: String,
-    required: true,
+    // required: true,
   },
   state: {
     type: String,
-    required: true,
+    // required: true,
   },
   zip: {
     type: String,
-    required: true,
+    // required: true,
   },
   cellPhone: {
     type: String,
-    required: true,
+    // required: true,
   },
   workPhone: {
     type: String,
@@ -86,26 +90,26 @@ const EmployeeSchema = new Schema({
     {
       firstName: {
         type: String,
-        required: true,
+        // required: true,
       },
       lastName: {
         type: String,
-        required: true,
+        // required: true,
       },
       middleName: {
         type: String,
       },
       cellPhone: {
         type: String,
-        required: true,
+        // required: true,
       },
       email: {
         type: String,
-        required: true,
+        // required: true,
       },
       relationship: {
         type: String,
-        required: true,
+        // required: true,
       },
     },
   ],
@@ -113,11 +117,11 @@ const EmployeeSchema = new Schema({
     {
       file: {
         type: String,
-        required: true,
+        // required: true,
       },
       type: {
         type: String,
-        required: true,
+        // required: true,
       },
     },
   ],

@@ -1,6 +1,7 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 import { checkToken, createToken } from './token';
 import { login, register } from './auth';
+import { createName } from './personalInfo';
 
 const Message = new GraphQLObjectType({
   name: 'Hello',
@@ -30,6 +31,7 @@ const schema = new GraphQLSchema({
     fields: {
       createToken: createToken,
       register: register,
+      createName: createName,
     },
   }),
 });
