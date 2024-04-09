@@ -4,15 +4,21 @@ import { InternalServerError, InvalidInputError } from './error';
 import User from '../model/user';
 import { comparePassword, cryptPassword } from './password';
 import jwt from 'jsonwebtoken';
+import Token from '../model/token';
 
 interface SignupArgs {
+  token: string;
   username: string;
   email: string;
   password: string;
 }
 
 const RegisterResolver = async (_: any, args: SignupArgs) => {
-  const { username, email, password } = args;
+  const { token, username, email, password } = args;
+  const tokenModel = await Token.findOne({ token });
+  if (!tokenModel) {
+    throw new InvalidInputError('Token not found', 'token');
+  }
   const encryptedPassword = await cryptPassword(password);
 
   const existedUsername = await User.findOne({ username });
@@ -28,7 +34,13 @@ const RegisterResolver = async (_: any, args: SignupArgs) => {
   try {
     const user = new User({ username, email, password: encryptedPassword });
     await user.save();
-    return { api: 'register', type: 'mutation', message: 'User created' };
+    await tokenModel.updateOne({ user: user._id });
+    return {
+      api: 'register',
+      type: 'mutation',
+      status: 'sucess',
+      message: 'User created',
+    };
   } catch (error) {
     throw new InternalServerError('Failed to create user');
   }
@@ -37,6 +49,7 @@ const RegisterResolver = async (_: any, args: SignupArgs) => {
 export const register = {
   type: MessageType,
   args: {
+    token: { type: GraphQLString },
     username: { type: GraphQLString },
     email: { type: GraphQLString },
     password: { type: GraphQLString },
