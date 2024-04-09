@@ -1,7 +1,7 @@
 import { GraphQLString, GraphQLObjectType } from 'graphql';
 import { MessageType } from './message';
 import { InternalServerError, InvalidInputError } from './error';
-import Auth from '../model/auth';
+import User from '../model/user';
 import { comparePassword, cryptPassword } from './password';
 import jwt from 'jsonwebtoken';
 
@@ -15,19 +15,19 @@ const RegisterResolver = async (_: any, args: SignupArgs) => {
   const { username, email, password } = args;
   const encryptedPassword = await cryptPassword(password);
 
-  const existedUsername = await Auth.findOne({ username });
+  const existedUsername = await User.findOne({ username });
   if (existedUsername) {
     throw new InvalidInputError('Username already existed', 'username');
   }
 
-  const existedEmail = await Auth.findOne({ email });
+  const existedEmail = await User.findOne({ email });
   if (existedEmail) {
     throw new InvalidInputError('Email already existed', 'email');
   }
 
   try {
-    const auth = new Auth({ username, email, password: encryptedPassword });
-    await auth.save();
+    const user = new User({ username, email, password: encryptedPassword });
+    await user.save();
     return { api: 'register', type: 'mutation', message: 'User created' };
   } catch (error) {
     throw new InternalServerError('Failed to create user');
@@ -63,7 +63,7 @@ const UserType = new GraphQLObjectType({
 
 const LoginResolver = async (_: any, args: LoginArgs) => {
   const { username, password } = args;
-  const user = await Auth.findOne({ username });
+  const user = await User.findOne({ username });
   if (!user) {
     throw new InvalidInputError('User not found', 'username');
   }

@@ -1,6 +1,6 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 import { checkToken, createToken } from './token';
-import { login, register } from './auth';
+import { login, register } from './user';
 
 const Message = new GraphQLObjectType({
   name: 'Hello',
