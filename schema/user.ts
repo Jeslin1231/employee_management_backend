@@ -15,10 +15,17 @@ interface SignupArgs {
 
 const RegisterResolver = async (_: any, args: SignupArgs) => {
   const { token, username, email, password } = args;
+
   const tokenModel = await Token.findOne({ token });
   if (!tokenModel) {
     throw new InvalidInputError('Token not found', 'token');
   }
+  try {
+    jwt.verify(token, process.env.SECRET || '');
+  } catch (error) {
+    throw new InvalidInputError('Expired token', 'token');
+  }
+
   const encryptedPassword = await cryptPassword(password);
 
   const existedUsername = await User.findOne({ username });
