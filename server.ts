@@ -4,7 +4,9 @@ import { createHandler } from 'graphql-http/lib/use/express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import schema from './schema/schema';
-import { auth } from './middleware/auth';
+import { authGql, authRest } from './middleware/auth';
+import { upload, errorHandler } from './middleware/file';
+import { handleFile } from './controllers/file';
 
 dotenv.config();
 
@@ -20,7 +22,8 @@ mongoose
 
 const app = express();
 app.use(cors());
-app.use(auth);
+app.use(express.static('/tmp/uploads'));
+app.use(authGql);
 
 app.all(
   '/graphql',
@@ -36,6 +39,8 @@ app.all(
     },
   }),
 );
+
+app.post('/upload', authRest, upload, errorHandler, handleFile);
 
 app.listen(4000, () => {
   console.log('Server is running on port 4000');
