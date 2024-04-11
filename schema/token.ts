@@ -3,6 +3,7 @@ import Token from '../model/token';
 import jwt from 'jsonwebtoken';
 import { UnauthorizedError } from './error';
 import { MessageType } from './message';
+import User from '../model/user';
 
 const TokenType = new GraphQLObjectType({
   name: 'Token',
@@ -12,16 +13,32 @@ const TokenType = new GraphQLObjectType({
   },
 });
 
-const createTokenResolver = async (_: any, args: { email: string }) => {
+const createTokenResolver = async (
+  _: any,
+  args: { email: string },
+  context: any,
+) => {
+  if (!context.authorized) {
+    throw new UnauthorizedError('Unauthorized access', 'UNAUTHORIZED_ACCESS');
+  }
+  const user = await User.findOne({ _id: context.userId });
+  if (!user) {
+    throw new UnauthorizedError('Unauthorized access', 'UNAUTHORIZED_ACCESS');
+  }
+  if (user.role !== 'hr') {
+    throw new UnauthorizedError('Unauthorized access', 'UNAUTHORIZED_ACCESS');
+  }
+
   const { email } = args;
   const token = jwt.sign({ email }, process.env.SECRET || '', {
     expiresIn: 180,
   });
+  const URL = `${process.env.client_URL}/register/${token}`;
   const tokenModel = await Token.findOne({ email });
   if (tokenModel) {
-    await tokenModel.updateOne({ token, createdAt: new Date() });
+    await tokenModel.updateOne({ URL, token, createdAt: new Date() });
   } else {
-    const newToken = new Token({ email, token });
+    const newToken = new Token({ email, token, URL });
     await newToken.save();
   }
   return { email, token };
