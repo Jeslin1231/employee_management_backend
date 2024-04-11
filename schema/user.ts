@@ -43,6 +43,7 @@ const RegisterResolver = async (_: any, args: SignupArgs) => {
     await user.save();
     await tokenModel.updateOne({ user: user._id });
     return {
+      //TODO: add role field
       api: 'register',
       type: 'mutation',
       status: 'sucess',

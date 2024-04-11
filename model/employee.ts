@@ -39,10 +39,10 @@ const EmployeeSchema = new Schema({
   },
   gender: {
     type: String,
-    enum: ['Male', 'Female'],
+    enum: ['male', 'female'],
     required: true,
   },
-  Apartment: {
+  apartment: {
     type: String,
   },
   streetAddress: {
@@ -68,6 +68,11 @@ const EmployeeSchema = new Schema({
   workPhone: {
     type: String,
   },
+  citizenship: {
+    type: String,
+    enum: ['citizen', 'green_card', 'visa'],
+    required: true,
+  },
   visaType: {
     type: String,
   },
@@ -77,14 +82,23 @@ const EmployeeSchema = new Schema({
   visaEndDate: {
     type: Date,
   },
-  referredBy: {
-    referrer: {
-      type: Schema.Types.ObjectId,
-      ref: 'Employee',
-    },
-    relationship: {
-      type: String,
-    },
+  referralFirstName: {
+    type: String,
+  },
+  referralMiddleName: {
+    type: String,
+  },
+  referralLastName: {
+    type: String,
+  },
+  referralEmail: {
+    type: String,
+  },
+  referralPhone: {
+    type: String,
+  },
+  referralRelationship: {
+    type: String,
   },
   emergencyContacts: [
     {
@@ -99,7 +113,7 @@ const EmployeeSchema = new Schema({
       middleName: {
         type: String,
       },
-      cellPhone: {
+      phone: {
         type: String,
         required: true,
       },
