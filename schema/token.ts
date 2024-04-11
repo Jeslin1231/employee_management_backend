@@ -3,6 +3,7 @@ import Token from '../model/token';
 import jwt from 'jsonwebtoken';
 import { UnauthorizedError } from './error';
 import { MessageType } from './message';
+import User from '../model/user';
 
 const TokenType = new GraphQLObjectType({
   name: 'Token',
@@ -12,7 +13,22 @@ const TokenType = new GraphQLObjectType({
   },
 });
 
-const createTokenResolver = async (_: any, args: { email: string }) => {
+const createTokenResolver = async (
+  _: any,
+  args: { email: string },
+  context: any,
+) => {
+  if (!context.authorized) {
+    throw new UnauthorizedError('Unauthorized access', 'UNAUTHORIZED_ACCESS');
+  }
+  const user = await User.findOne({ _id: context.userId });
+  if (!user) {
+    throw new UnauthorizedError('Unauthorized access', 'UNAUTHORIZED_ACCESS');
+  }
+  if (user.role !== 'hr') {
+    throw new UnauthorizedError('Unauthorized access', 'UNAUTHORIZED_ACCESS');
+  }
+
   const { email } = args;
   const token = jwt.sign({ email }, process.env.SECRET || '', {
     expiresIn: 180,
