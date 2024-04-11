@@ -52,22 +52,35 @@ const updateNameSectionResolver = async (
     dateOfBirth,
     gender,
   } = args;
+
+  if (!context.authorized) {
+    throw new UnauthorizedError('Unauthorized', 'unauthorized');
+  }
+  const userId = context.userId;
+  const employee = await Employee.findOne({ user: userId });
+
+  // If employee not found, throw an error
+  if (!employee) {
+    throw new NotFoundError('Employee not found');
+  }
   try {
-    if (!context.authorized) {
-      throw new UnauthorizedError('Unauthorized', 'unauthorized');
-    }
-    const userId = context.userId;
-    const employee = await Employee.findOne({ user: userId });
-
-    // If employee not found, throw an error
-    if (!employee) {
-      throw new NotFoundError('Employee not found');
-    }
-
     // update avatar
-    if (avatar || avatar !== employee.documents[0].file) {
-      employee.documents[0].file = avatar;
-      await employee.save();
+    if (avatar) {
+      const avatarDocument = employee.documents.find(doc => {
+        return doc.type === 'avatar';
+      });
+
+      if (avatarDocument) {
+        avatarDocument.file = avatar;
+        await employee.save();
+      } else {
+        const newDocument = {
+          type: 'avatar',
+          file: avatar,
+        };
+        employee.documents.push(newDocument);
+        await employee.save();
+      }
     }
 
     // Update the employee's information
@@ -139,17 +152,17 @@ const updateAddressSectionResolver = async (
   context: any,
 ) => {
   const { streetAddress, apartment, city, state, zip } = args;
-  try {
-    if (!context.authorized) {
-      throw new UnauthorizedError('Unauthorized', 'unauthorized');
-    }
-    const userId = context.userId;
-    const employee = await Employee.findOne({ user: userId });
-    // If employee not found, throw an error
-    if (!employee) {
-      throw new NotFoundError('Employee not found');
-    }
 
+  if (!context.authorized) {
+    throw new UnauthorizedError('Unauthorized', 'unauthorized');
+  }
+  const userId = context.userId;
+  const employee = await Employee.findOne({ user: userId });
+  // If employee not found, throw an error
+  if (!employee) {
+    throw new NotFoundError('Employee not found');
+  }
+  try {
     // Update the employee's information
     employee.streetAddress = streetAddress ?? employee.streetAddress;
     employee.apartment = apartment ?? employee.apartment;
@@ -203,17 +216,17 @@ const updateContactSectionResolver = async (
   context: any,
 ) => {
   const { cellPhone, workPhone } = args;
-  try {
-    if (!context.authorized) {
-      throw new UnauthorizedError('Unauthorized', 'unauthorized');
-    }
-    const userId = context.userId;
-    const employee = await Employee.findOne({ user: userId });
-    // If employee not found, throw an error
-    if (!employee) {
-      throw new NotFoundError('Employee not found');
-    }
 
+  if (!context.authorized) {
+    throw new UnauthorizedError('Unauthorized', 'unauthorized');
+  }
+  const userId = context.userId;
+  const employee = await Employee.findOne({ user: userId });
+  // If employee not found, throw an error
+  if (!employee) {
+    throw new NotFoundError('Employee not found');
+  }
+  try {
     // Update the employee's information
     employee.cellPhone = cellPhone ?? employee.cellPhone;
     employee.workPhone = workPhone ?? employee.workPhone;
@@ -254,17 +267,17 @@ const updateEmploymentSectionResolver = async (
   context: any,
 ) => {
   const { visaType, startDate, endDate } = args;
-  try {
-    if (!context.authorized) {
-      throw new UnauthorizedError('Unauthorized', 'unauthorized');
-    }
-    const userId = context.userId;
-    const employee = await Employee.findOne({ user: userId });
-    // If employee not found, throw an error
-    if (!employee) {
-      throw new NotFoundError('Employee not found');
-    }
 
+  if (!context.authorized) {
+    throw new UnauthorizedError('Unauthorized', 'unauthorized');
+  }
+  const userId = context.userId;
+  const employee = await Employee.findOne({ user: userId });
+  // If employee not found, throw an error
+  if (!employee) {
+    throw new NotFoundError('Employee not found');
+  }
+  try {
     // Update the employee's information
     employee.visaType = visaType ?? employee.visaType;
     employee.visaStartDate = startDate ?? employee.visaStartDate;
@@ -295,6 +308,7 @@ export const updateEmploymentSection = {
 const EmergencyContactType = new GraphQLObjectType({
   name: 'EmergencyContactUpdate',
   fields: {
+    _id: { type: GraphQLString },
     firstName: { type: GraphQLString },
     lastName: { type: GraphQLString },
     middleName: { type: GraphQLString },
@@ -332,17 +346,17 @@ const updateEmergencyContactSectionResolver = async (
   context: any,
 ) => {
   const { contacts } = args;
-  try {
-    if (!context.authorized) {
-      throw new UnauthorizedError('Unauthorized', 'unauthorized');
-    }
-    const userId = context.userId;
-    const employee = await Employee.findOne({ user: userId });
-    // If employee not found, throw an error
-    if (!employee) {
-      throw new NotFoundError('Employee not found');
-    }
 
+  if (!context.authorized) {
+    throw new UnauthorizedError('Unauthorized', 'unauthorized');
+  }
+  const userId = context.userId;
+  const employee = await Employee.findOne({ user: userId });
+  // If employee not found, throw an error
+  if (!employee) {
+    throw new NotFoundError('Employee not found');
+  }
+  try {
     // Update the employee's information
     employee.emergencyContacts = contacts ?? employee.emergencyContacts;
 
@@ -396,17 +410,16 @@ const getPersonalAllInfoResolver = async (
   _args: any,
   context: any,
 ) => {
+  if (!context.authorized) {
+    throw new UnauthorizedError('Unauthorized', 'unauthorized');
+  }
+  const userId = context.userId;
+  const employee = await Employee.findOne({ user: userId });
+  // If employee not found, throw an error
+  if (!employee) {
+    throw new NotFoundError('Employee not found');
+  }
   try {
-    if (!context.authorized) {
-      throw new UnauthorizedError('Unauthorized', 'unauthorized');
-    }
-    const userId = context.userId;
-    const employee = await Employee.findOne({ user: userId });
-    // If employee not found, throw an error
-    if (!employee) {
-      throw new NotFoundError('Employee not found');
-    }
-
     const avatar = employee.documents[0].file;
     employee.avatar = avatar;
     return employee;
