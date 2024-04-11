@@ -34,6 +34,7 @@ const schema = new GraphQLSchema({
       checkToken: checkToken,
       login: login,
       getAllEmployeesProfiles: getAllEmployeesProfiles,
+      getPersonalAllInfo: getPersonalAllInfo,
       employee: queryEmployee,
     },
   }),
@@ -48,7 +49,6 @@ const schema = new GraphQLSchema({
       updateContactSection: updateContactSection,
       updateEmploymentSection: updateEmploymentSection,
       updateEmergencyContactSection: updateEmergencyContactSection,
-      getPersonalAllInfo: getPersonalAllInfo,
     },
   }),
 });
