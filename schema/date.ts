@@ -17,6 +17,14 @@ const DateScalar = new GraphQLScalarType({
     throw new InvalidInputError('Invalid date input', 'number');
   },
   parseLiteral(ast) {
+    if (ast.kind === Kind.STRING) {
+      const match = ast.value.match(/^\d+$/);
+      if (match) {
+        return new Date(parseInt(ast.value, 10));
+      } else {
+        throw new InvalidInputError('Invalid date input', 'string');
+      }
+    }
     if (ast.kind === Kind.INT) {
       return new Date(parseInt(ast.value, 10));
     }
