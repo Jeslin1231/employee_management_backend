@@ -117,23 +117,25 @@ const getAllTokenHistoryResolver = async (_: any, __: any, context: any) => {
       tokens.map(async token => {
         const id = token.user;
         const user = await User.findById(id);
-        token.username = user?.username;
-        token.status = user?.status;
+        const username = user?.username;
+        const status = user?.status;
 
+        let fullName = ''; // Initialize fullName variable
         const employee = await Employee.findOne({ user: id });
         if (employee) {
           if (employee.middleName) {
-            token.fullName = `${employee.firstName} ${employee.middleName} ${employee.lastName}`;
+            fullName = `${employee.firstName} ${employee.middleName} ${employee.lastName}`;
           } else {
-            token.fullName = `${employee.firstName} ${employee.lastName}`;
+            fullName = `${employee.firstName} ${employee.lastName}`;
           }
         }
+
         return {
-          username: token.username,
-          fullName: token.fullName,
+          username: username,
+          fullName: fullName,
           email: token.email,
           URL: token.URL,
-          status: token.status,
+          status: status,
         }; // Map token to match tokenHistory fields
       }),
     );

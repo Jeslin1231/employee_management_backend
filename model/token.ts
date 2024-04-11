@@ -7,12 +7,6 @@ const TokenSchema = new Schema({
     required: true,
     unique: true,
   },
-  fullName: {
-    type: String,
-  },
-  username: {
-    type: String,
-  },
   token: {
     type: String,
     required: true,
@@ -26,9 +20,6 @@ const TokenSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  },
-  status: {
-    type: String,
   },
   user: {
     type: Schema.Types.ObjectId,
