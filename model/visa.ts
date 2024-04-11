@@ -12,9 +12,9 @@ const DocumentSchema = new Schema({
 });
 
 const VisaSchema = new Schema({
-  employee: {
+  user: {
     type: Schema.Types.ObjectId,
-    ref: 'Employee',
+    ref: 'User',
     required: true,
   },
   visaTitle: {
