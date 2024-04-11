@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken';
 import type { Request, Response, NextFunction } from 'express';
 
 export const authGql = (req: Request, res: Response, next: NextFunction) => {
-  console.log(req.header);
   const token = req.header('x-auth-token') || '';
   try {
     const decoded = jwt.verify(token, process.env.SECRET || '');
