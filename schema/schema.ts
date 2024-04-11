@@ -3,6 +3,14 @@ import { checkToken, createToken } from './token';
 import { login, register } from './user';
 import { getAllEmployeesProfiles } from './profiles_hr';
 import { queryEmployee, onboarding } from './onboarding';
+import {
+  updateNameSection,
+  updateAddressSection,
+  updateContactSection,
+  updateEmploymentSection,
+  updateEmergencyContactSection,
+  getPersonalAllInfo,
+} from './personalInfo';
 
 const Message = new GraphQLObjectType({
   name: 'Hello',
@@ -26,6 +34,7 @@ const schema = new GraphQLSchema({
       checkToken: checkToken,
       login: login,
       getAllEmployeesProfiles: getAllEmployeesProfiles,
+      getPersonalAllInfo: getPersonalAllInfo,
       employee: queryEmployee,
     },
   }),
@@ -35,6 +44,11 @@ const schema = new GraphQLSchema({
       createToken: createToken,
       register: register,
       onboarding: onboarding,
+      updateNameSection: updateNameSection,
+      updateAddressSection: updateAddressSection,
+      updateContactSection: updateContactSection,
+      updateEmploymentSection: updateEmploymentSection,
+      updateEmergencyContactSection: updateEmergencyContactSection,
     },
   }),
 });
