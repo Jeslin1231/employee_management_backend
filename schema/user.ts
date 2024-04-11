@@ -11,10 +11,11 @@ interface SignupArgs {
   username: string;
   email: string;
   password: string;
+  role: string;
 }
 
 const RegisterResolver = async (_: any, args: SignupArgs) => {
-  const { token, username, email, password } = args;
+  const { token, username, email, password, role } = args;
 
   const tokenModel = await Token.findOne({ token });
   if (!tokenModel) {
@@ -39,11 +40,15 @@ const RegisterResolver = async (_: any, args: SignupArgs) => {
   }
 
   try {
-    const user = new User({ username, email, password: encryptedPassword });
+    const user = new User({
+      username,
+      email,
+      password: encryptedPassword,
+      role,
+    });
     await user.save();
     await tokenModel.updateOne({ user: user._id });
     return {
-      //TODO: add role field
       api: 'register',
       type: 'mutation',
       status: 'sucess',
@@ -61,6 +66,7 @@ export const register = {
     username: { type: GraphQLString },
     email: { type: GraphQLString },
     password: { type: GraphQLString },
+    role: { type: GraphQLString },
   },
   resolve: RegisterResolver,
 };
