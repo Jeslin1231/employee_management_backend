@@ -29,14 +29,12 @@ app.all(
   '/graphql',
   createHandler({
     schema: schema,
-    context: req => {
-      return {
-        // @ts-ignore implicit any
-        authorized: req.headers['x-authorized'] === 'true',
-        // @ts-ignore implicit any
-        userId: req.headers['x-decoded-id'] || null,
-      };
-    },
+    context: req => ({
+      // @ts-ignore implicit any
+      authorized: req.headers['x-authorized'] === 'true',
+      // @ts-ignore implicit any
+      userId: req.headers['x-decoded-id'] || null,
+    }),
   }),
 );
 
