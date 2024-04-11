@@ -86,7 +86,7 @@ const EmployeeType = new GraphQLObjectType({
   },
 });
 
-const EmployeeInputType = new GraphQLInputObjectType({
+const OnboardingDataInput = new GraphQLInputObjectType({
   name: 'OnboardingDataInput',
   fields: {
     avatar: { type: GraphQLString },
@@ -121,25 +121,13 @@ const EmployeeInputType = new GraphQLInputObjectType({
   },
 });
 
-interface QueryEmployeeArgs {
-  userId: string;
-}
-
-const queryEmployeeDataResolver = async (
-  _: any,
-  args: QueryEmployeeArgs,
-  context: any,
-) => {
-  if (
-    !context.authorized ||
-    !context.userId ||
-    context.userId !== args.userId
-  ) {
+const queryEmployeeDataResolver = async (_: any, __: any, context: any) => {
+  if (!context.authorized || !context.userId) {
     throw new UnauthorizedError('Access denied', 'UNAUTHORIZED');
   }
 
   try {
-    const employee = await Employee.findOne({ user: args.userId });
+    const employee = await Employee.findOne({ user: context.userId });
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'user');
     }
@@ -151,9 +139,6 @@ const queryEmployeeDataResolver = async (
 
 export const queryEmployee = {
   type: EmployeeType,
-  args: {
-    userId: { type: GraphQLString },
-  },
   resolve: queryEmployeeDataResolver,
 };
 
@@ -224,7 +209,7 @@ const onboardingResolver = async (_: any, args: any, context: any) => {
 export const onboarding = {
   type: MessageType,
   args: {
-    data: { type: EmployeeInputType },
+    data: { type: OnboardingDataInput },
   },
   resolve: onboardingResolver,
 };
