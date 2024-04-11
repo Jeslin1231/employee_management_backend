@@ -1,6 +1,7 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 import { checkToken, createToken } from './token';
 import { login, register } from './user';
+import { getAllEmployeesProfiles } from './profiles_hr';
 import { queryEmployee, onboarding } from './onboarding';
 import {
   updateNameSection,
@@ -32,6 +33,7 @@ const schema = new GraphQLSchema({
       },
       checkToken: checkToken,
       login: login,
+      getAllEmployeesProfiles: getAllEmployeesProfiles,
       employee: queryEmployee,
     },
   }),
