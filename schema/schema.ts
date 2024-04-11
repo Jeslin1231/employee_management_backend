@@ -1,6 +1,7 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 import { checkToken, createToken } from './token';
 import { login, register } from './user';
+import { getAllEmployeesProfiles } from './profiles_hr';
 
 const Message = new GraphQLObjectType({
   name: 'Hello',
@@ -23,6 +24,7 @@ const schema = new GraphQLSchema({
       },
       checkToken: checkToken,
       login: login,
+      getAllEmployeesProfiles: getAllEmployeesProfiles,
     },
   }),
   mutation: new GraphQLObjectType({

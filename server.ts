@@ -30,6 +30,7 @@ app.all(
   createHandler({
     schema: schema,
     context: req => {
+      console.log(req);
       return {
         // @ts-ignore implicit any
         authorized: req.headers['x-authorized'] === 'true',
