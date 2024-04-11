@@ -3,6 +3,7 @@ import { Schema } from 'mongoose';
 
 const DocumentSchema = new Schema({
   feedback: String,
+  url: String,
   status: {
     type: String,
     enum: ['unsubmitted', 'pending', 'approved', 'rejected'],
