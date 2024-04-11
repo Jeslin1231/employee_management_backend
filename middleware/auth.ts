@@ -5,7 +5,6 @@ export const authGql = (req: Request, res: Response, next: NextFunction) => {
   const token = req.header('x-auth-token') || '';
   try {
     const decoded = jwt.verify(token, process.env.SECRET || '');
-    // console.log(decoded)
     req.headers['x-authorized'] = 'true';
     if (typeof decoded === 'string') {
       req.headers['x-decoded-id'] = decoded;
