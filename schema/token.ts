@@ -33,11 +33,12 @@ const createTokenResolver = async (
   const token = jwt.sign({ email }, process.env.SECRET || '', {
     expiresIn: 180,
   });
+  const URL = `${process.env.client_URL}/register/${token}`;
   const tokenModel = await Token.findOne({ email });
   if (tokenModel) {
-    await tokenModel.updateOne({ token, createdAt: new Date() });
+    await tokenModel.updateOne({ URL, token, createdAt: new Date() });
   } else {
-    const newToken = new Token({ email, token });
+    const newToken = new Token({ email, token, URL });
     await newToken.save();
   }
   return { email, token };
