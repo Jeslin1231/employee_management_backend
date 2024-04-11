@@ -17,6 +17,7 @@ import User from '../model/user';
 const EmergencyContactType = new GraphQLObjectType({
   name: 'EmergencyContact',
   fields: {
+    id: { type: GraphQLString },
     firstName: { type: GraphQLString },
     lastName: { type: GraphQLString },
     middleName: { type: GraphQLString },
@@ -60,7 +61,6 @@ const EmployeeType = new GraphQLObjectType({
     middleName: { type: GraphQLString },
     preferredName: { type: GraphQLString },
     email: { type: GraphQLString },
-    avatar: { type: GraphQLString },
     ssn: { type: GraphQLString },
     dateOfBirth: { type: DateScalar },
     gender: { type: GraphQLString },
