@@ -15,8 +15,8 @@ const VisaDocumentType = new GraphQLObjectType({
   },
 });
 
-const ReceiptType = new GraphQLObjectType({
-  name: 'Receipt',
+const VisaType = new GraphQLObjectType({
+  name: 'Visa',
   fields: {
     visaTitle: { type: GraphQLString },
     optReceipt: { type: VisaDocumentType },
@@ -48,7 +48,7 @@ const queryVisaResolver = async (_: any, __: any, context: any) => {
 };
 
 export const visa = {
-  type: ReceiptType,
+  type: VisaType,
   resolve: queryVisaResolver,
 };
 
@@ -206,4 +206,38 @@ export const visaFeedback = {
     status: { type: GraphQLString },
   },
   resolve: visaFeedbackResolver,
+};
+
+const updateVisaStatusResolver = async (
+  _: any,
+  args: { fileType: string; uri: string },
+  context: any,
+) => {
+  if (!context.authorized || !context.userId) {
+    throw new UnauthorizedError('Access denied', 'UNAUTHORIZED');
+  }
+
+  const visa = await Visa.findOne({ user: context.userId });
+  if (!visa) {
+    throw new NotFoundError('Visa not found');
+  }
+
+  visa.set(`${args.fileType}.status`, 'pending');
+  visa.set(`${args.fileType}.url`, args.uri);
+  await visa.save();
+  return {
+    api: 'updateVisaStatus',
+    type: 'success',
+    status: 'success',
+    message: 'Visa status updated',
+  };
+};
+
+export const updateVisaStatus = {
+  type: MessageType,
+  args: {
+    fileType: { type: GraphQLString },
+    uri: { type: GraphQLString },
+  },
+  resolve: updateVisaStatusResolver,
 };
