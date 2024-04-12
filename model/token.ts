@@ -7,9 +7,6 @@ const TokenSchema = new Schema({
     required: true,
     unique: true,
   },
-  fullName: {
-    type: String,
-  },
   token: {
     type: String,
     required: true,
