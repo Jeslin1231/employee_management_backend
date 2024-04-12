@@ -197,6 +197,7 @@ const onboardingResolver = async (_: any, args: any, context: any) => {
   });
   await newEmployee.save();
   user.employee = newEmployee._id;
+  user.status = 'pending';
   await user.save();
 
   return {
