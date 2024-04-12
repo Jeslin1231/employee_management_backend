@@ -8,6 +8,7 @@ import Employee from '../model/employee';
 import { UnauthorizedError, InvalidInputError, NotFoundError } from './error';
 import DateScalar from './date';
 import { MessageType } from './message';
+import User from '../model/user';
 
 // name part
 interface NameSectionArgs {
@@ -400,14 +401,24 @@ const PersonalAllInfoType = new GraphQLObjectType({
 
 const getPersonalAllInfoResolver = async (
   _parent: any,
-  _args: any,
+  args: any,
   context: any,
 ) => {
   if (!context.authorized) {
     throw new UnauthorizedError('Unauthorized', 'unauthorized');
   }
   const userId = context.userId;
-  const employee = await Employee.findOne({ user: userId });
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  let employee;
+  if (user.role === 'hr') {
+    employee = await Employee.findOne({ user: args.employee });
+  } else {
+    employee = await Employee.findOne({ user: userId });
+  }
   // If employee not found, throw an error
   if (!employee) {
     throw new NotFoundError('Employee not found');
@@ -423,5 +434,8 @@ const getPersonalAllInfoResolver = async (
 
 export const getPersonalAllInfo = {
   type: PersonalAllInfoType,
+  args: {
+    employee: { type: GraphQLString },
+  },
   resolve: getPersonalAllInfoResolver,
 };
