@@ -139,6 +139,9 @@ const EmployeeSchema = new Schema({
       },
     },
   ],
+  feedback: {
+    type: String,
+  },
 });
 
 const Employee = mongoose.model('Employee', EmployeeSchema);

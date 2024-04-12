@@ -83,6 +83,7 @@ const EmployeeType = new GraphQLObjectType({
     referralRelationship: { type: GraphQLString },
     emergencyContacts: { type: EmergencyContactList },
     documents: { type: DocumentList },
+    feedback: { type: GraphQLString },
   },
 });
 
