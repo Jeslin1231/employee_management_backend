@@ -5,6 +5,7 @@ import { UnauthorizedError, NotFoundError, InternalServerError } from './error';
 import { MessageType } from './message';
 import User from '../model/user';
 import Employee from '../model/employee';
+import nodemailer from 'nodemailer';
 
 const TokenType = new GraphQLObjectType({
   name: 'Token',
@@ -42,6 +43,26 @@ const createTokenResolver = async (
     const newToken = new Token({ email, token, URL });
     await newToken.save();
   }
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: process.env.MAIL,
+      pass: process.env.PASS,
+    },
+  });
+  const mailOptions = {
+    from: process.env.EMAIL,
+    to: email,
+    subject: 'Registration Link',
+    text: `This is your registration link: ${URL}`,
+  };
+  await transporter.sendMail(mailOptions, function (err, info) {
+    if (err) console.log(err);
+    else console.log(info);
+  });
+  console.log('send email');
   return { email, token };
 };
 
