@@ -7,6 +7,7 @@ import {
 import Employee from '../model/employee';
 import { UnauthorizedError, InvalidInputError, NotFoundError } from './error';
 import DateScalar from './date';
+import { MessageType } from './message';
 
 // name part
 interface NameSectionArgs {
@@ -21,7 +22,7 @@ interface NameSectionArgs {
   gender: 'male' | 'female';
 }
 
-const NameSectionType = new GraphQLObjectType({
+const NameSectionInputType = new GraphQLInputObjectType({
   name: 'NameSectionInput',
   fields: {
     avatar: { type: GraphQLString },
@@ -38,7 +39,7 @@ const NameSectionType = new GraphQLObjectType({
 
 const updateNameSectionResolver = async (
   parent: any,
-  args: NameSectionArgs,
+  args: { data: NameSectionArgs },
   context: any,
 ) => {
   const {
@@ -51,7 +52,7 @@ const updateNameSectionResolver = async (
     ssn,
     dateOfBirth,
     gender,
-  } = args;
+  } = args.data;
 
   if (!context.authorized) {
     throw new UnauthorizedError('Unauthorized', 'unauthorized');
@@ -95,15 +96,10 @@ const updateNameSectionResolver = async (
     await employee.save();
 
     return {
-      avatar,
-      email,
-      firstName,
-      middleName,
-      lastName,
-      preferredName,
-      ssn,
-      dateOfBirth,
-      gender,
+      api: 'updateNameSection',
+      type: 'mutation',
+      status: 'success',
+      message: 'Employee name information updated',
     };
   } catch (error) {
     throw new InvalidInputError('Failed to update user', 'employee');
@@ -111,17 +107,9 @@ const updateNameSectionResolver = async (
 };
 
 export const updateNameSection = {
-  type: NameSectionType,
+  type: MessageType,
   args: {
-    avatar: { type: GraphQLString },
-    email: { type: GraphQLString },
-    firstName: { type: GraphQLString },
-    middleName: { type: GraphQLString },
-    lastName: { type: GraphQLString },
-    preferredName: { type: GraphQLString },
-    ssn: { type: GraphQLString },
-    dateOfBirth: { type: DateScalar },
-    gender: { type: GraphQLString },
+    data: { type: NameSectionInputType },
   },
   resolve: updateNameSectionResolver,
 };
@@ -135,8 +123,8 @@ interface addressSectionArgs {
   zip: string;
 }
 
-const AddressSectionType = new GraphQLObjectType({
-  name: 'AddressSection',
+const AddressSectionInputType = new GraphQLInputObjectType({
+  name: 'AddressSectionInput',
   fields: {
     streetAddress: { type: GraphQLString },
     apartment: { type: GraphQLString },
@@ -148,10 +136,10 @@ const AddressSectionType = new GraphQLObjectType({
 
 const updateAddressSectionResolver = async (
   _parent: any,
-  args: addressSectionArgs,
+  args: { data: addressSectionArgs },
   context: any,
 ) => {
-  const { streetAddress, apartment, city, state, zip } = args;
+  const { streetAddress, apartment, city, state, zip } = args.data;
 
   if (!context.authorized) {
     throw new UnauthorizedError('Unauthorized', 'unauthorized');
@@ -172,11 +160,10 @@ const updateAddressSectionResolver = async (
 
     await employee.save();
     return {
-      streetAddress,
-      apartment,
-      city,
-      state,
-      zip,
+      api: 'updateAddressSection',
+      type: 'mutation',
+      status: 'success',
+      message: 'Employee address information updated',
     };
   } catch (error) {
     throw new InvalidInputError('Failed to update user', 'employee');
@@ -184,13 +171,9 @@ const updateAddressSectionResolver = async (
 };
 
 export const updateAddressSection = {
-  type: AddressSectionType,
+  type: MessageType,
   args: {
-    streetAddress: { type: GraphQLString },
-    apartment: { type: GraphQLString },
-    city: { type: GraphQLString },
-    state: { type: GraphQLString },
-    zip: { type: GraphQLString },
+    data: { type: AddressSectionInputType },
   },
   resolve: updateAddressSectionResolver,
 };
@@ -202,8 +185,8 @@ interface contactSectionArgs {
   workPhone: string;
 }
 
-const ContactSectionType = new GraphQLObjectType({
-  name: 'ContactSection',
+const ContactSectionInputType = new GraphQLInputObjectType({
+  name: 'ContactSectionInput',
   fields: {
     cellPhone: { type: GraphQLString },
     workPhone: { type: GraphQLString },
@@ -212,10 +195,10 @@ const ContactSectionType = new GraphQLObjectType({
 
 const updateContactSectionResolver = async (
   _parent: any,
-  args: contactSectionArgs,
+  args: { data: contactSectionArgs },
   context: any,
 ) => {
-  const { cellPhone, workPhone } = args;
+  const { cellPhone, workPhone } = args.data;
 
   if (!context.authorized) {
     throw new UnauthorizedError('Unauthorized', 'unauthorized');
@@ -233,8 +216,10 @@ const updateContactSectionResolver = async (
 
     await employee.save();
     return {
-      cellPhone,
-      workPhone,
+      api: 'updateContactSection',
+      type: 'mutation',
+      status: 'success',
+      message: 'Employee contact information updated',
     };
   } catch (error) {
     throw new InvalidInputError('Failed to update user', 'employee');
@@ -242,19 +227,19 @@ const updateContactSectionResolver = async (
 };
 
 export const updateContactSection = {
-  type: ContactSectionType,
+  type: MessageType,
   args: {
-    cellPhone: { type: GraphQLString },
-    workPhone: { type: GraphQLString },
+    data: { type: ContactSectionInputType },
   },
   resolve: updateContactSectionResolver,
 };
 
 // Employment part
 
-const EmploymentSectionType = new GraphQLObjectType({
-  name: 'EmploymentSection',
+const EmploymentSectionInputType = new GraphQLInputObjectType({
+  name: 'EmploymentSectionInput',
   fields: {
+    citizenship: { type: GraphQLString },
     visaType: { type: GraphQLString },
     visaStartDate: { type: DateScalar },
     visaEndDate: { type: DateScalar },
@@ -266,10 +251,16 @@ const updateEmploymentSectionResolver = async (
   args: any,
   context: any,
 ) => {
-  const { visaType, startDate, endDate } = args;
+  const { citizenship, visaType, startDate, endDate } = args.data;
 
   if (!context.authorized) {
     throw new UnauthorizedError('Unauthorized', 'unauthorized');
+  }
+  if (citizenship !== 'no') {
+    throw new InvalidInputError(
+      'You must not be a citizen or a permanent resident',
+      'employee',
+    );
   }
   const userId = context.userId;
   const employee = await Employee.findOne({ user: userId });
@@ -295,11 +286,9 @@ const updateEmploymentSectionResolver = async (
 };
 
 export const updateEmploymentSection = {
-  type: EmploymentSectionType,
+  type: MessageType,
   args: {
-    visaType: { type: GraphQLString },
-    startDate: { type: DateScalar },
-    endDate: { type: DateScalar },
+    data: { type: EmploymentSectionInputType },
   },
   resolve: updateEmploymentSectionResolver,
 };
@@ -319,7 +308,7 @@ const EmergencyContactType = new GraphQLObjectType({
 });
 
 const EmergencyContactInputType = new GraphQLInputObjectType({
-  name: 'EmergencyContactInputUpdate',
+  name: 'EmergencyContactUpdateInput',
   fields: {
     firstName: { type: GraphQLString },
     lastName: { type: GraphQLString },
@@ -333,10 +322,10 @@ const EmergencyContactInputType = new GraphQLInputObjectType({
 const EmergencyContactList = new GraphQLList(EmergencyContactType);
 const EmergencyContactListInput = new GraphQLList(EmergencyContactInputType);
 
-const EmergencyContactSectionType = new GraphQLObjectType({
-  name: 'EmergencyContactSection',
+const EmergencyContactSectionInputType = new GraphQLInputObjectType({
+  name: 'EmergencyContactSectionInput',
   fields: {
-    emergencyContacts: { type: EmergencyContactList },
+    emergencyContacts: { type: EmergencyContactListInput },
   },
 });
 
@@ -345,7 +334,7 @@ const updateEmergencyContactSectionResolver = async (
   args: any,
   context: any,
 ) => {
-  const { contacts } = args;
+  const { emergencyContacts } = args.data;
 
   if (!context.authorized) {
     throw new UnauthorizedError('Unauthorized', 'unauthorized');
@@ -358,11 +347,15 @@ const updateEmergencyContactSectionResolver = async (
   }
   try {
     // Update the employee's information
-    employee.emergencyContacts = contacts ?? employee.emergencyContacts;
+    employee.emergencyContacts =
+      emergencyContacts ?? employee.emergencyContacts;
 
     await employee.save();
     return {
-      contacts,
+      api: 'updateEmergencyContactSection',
+      type: 'mutation',
+      status: 'success',
+      message: 'Employee emergency contact information updated',
     };
   } catch (error) {
     throw new InvalidInputError('Failed to update user', 'employee');
@@ -370,9 +363,9 @@ const updateEmergencyContactSectionResolver = async (
 };
 
 export const updateEmergencyContactSection = {
-  type: EmergencyContactSectionType,
+  type: MessageType,
   args: {
-    contacts: { type: EmergencyContactListInput },
+    data: { type: EmergencyContactSectionInputType },
   },
   resolve: updateEmergencyContactSectionResolver,
 };

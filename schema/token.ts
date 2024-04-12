@@ -1,9 +1,10 @@
-import { GraphQLObjectType, GraphQLString } from 'graphql';
+import { GraphQLObjectType, GraphQLString, GraphQLList } from 'graphql';
 import Token from '../model/token';
 import jwt from 'jsonwebtoken';
-import { UnauthorizedError } from './error';
+import { UnauthorizedError, NotFoundError, InternalServerError } from './error';
 import { MessageType } from './message';
 import User from '../model/user';
+import Employee from '../model/employee';
 
 const TokenType = new GraphQLObjectType({
   name: 'Token',
@@ -84,4 +85,68 @@ export const checkToken = {
     token: { type: GraphQLString },
   },
   resolve: checkTokenResolver,
+};
+
+const tokenHistory = new GraphQLObjectType({
+  name: 'TokenHistory',
+  fields: {
+    username: { type: GraphQLString },
+    fullName: { type: GraphQLString },
+    email: { type: GraphQLString },
+    URL: { type: GraphQLString },
+    status: { type: GraphQLString },
+  },
+});
+
+const getAllTokenHistoryResolver = async (_: any, __: any, context: any) => {
+  if (!context.authorized) {
+    throw new UnauthorizedError('Unauthorized access', 'UNAUTHORIZED_ACCESS');
+  }
+  const user = await User.findById(context.userId);
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+  if (user.role !== 'hr') {
+    throw new UnauthorizedError('Unauthorized access', 'UNAUTHORIZED_ACCESS');
+  }
+
+  try {
+    const tokens = await Token.find();
+    // Map each token to a Promise that resolves with the updated token
+    const updatedTokens = await Promise.all(
+      tokens.map(async token => {
+        const id = token.user;
+        const user = await User.findById(id);
+        const username = user?.username;
+        const status = user?.status;
+
+        let fullName = ''; // Initialize fullName variable
+        const employee = await Employee.findOne({ user: id });
+        if (employee) {
+          if (employee.middleName) {
+            fullName = `${employee.firstName} ${employee.middleName} ${employee.lastName}`;
+          } else {
+            fullName = `${employee.firstName} ${employee.lastName}`;
+          }
+        }
+
+        return {
+          username: username,
+          fullName: fullName,
+          email: token.email,
+          URL: token.URL,
+          status: status,
+        }; // Map token to match tokenHistory fields
+      }),
+    );
+
+    return updatedTokens; // Return the list of updated tokens
+  } catch (error) {
+    throw new InternalServerError('Failed to get token history');
+  }
+};
+
+export const getAllTokenHistory = {
+  type: new GraphQLList(tokenHistory),
+  resolve: getAllTokenHistoryResolver,
 };
