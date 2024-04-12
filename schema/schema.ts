@@ -11,7 +11,7 @@ import {
   updateEmergencyContactSection,
   getPersonalAllInfo,
 } from './personalInfo';
-import { visa, allVisa } from './visa';
+import { visa, allVisa, visaFeedback } from './visa';
 
 const Message = new GraphQLObjectType({
   name: 'Hello',
@@ -53,6 +53,7 @@ const schema = new GraphQLSchema({
       updateContactSection: updateContactSection,
       updateEmploymentSection: updateEmploymentSection,
       updateEmergencyContactSection: updateEmergencyContactSection,
+      visaFeedback: visaFeedback,
     },
   }),
 });

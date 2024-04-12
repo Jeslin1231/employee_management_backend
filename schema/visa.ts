@@ -4,6 +4,7 @@ import Visa from '../model/visa';
 import User from '../model/user';
 import Employee from '../model/employee';
 import DateScalar from './date';
+import { MessageType } from './message';
 
 const VisaDocumentType = new GraphQLObjectType({
   name: 'VisaDocument',
@@ -54,6 +55,7 @@ export const visa = {
 const AllVisaType = new GraphQLObjectType({
   name: 'AllVisas',
   fields: {
+    id: { type: GraphQLString },
     fullName: { type: GraphQLString },
     preferredName: { type: GraphQLString },
     visaTitle: { type: GraphQLString },
@@ -101,6 +103,7 @@ const getAllVisaResolver = async (_: any, __: any, context: any) => {
         const preferredName = employee?.preferredName;
 
         return {
+          id: visa.user,
           fullName: fullName,
           preferredName: preferredName,
           visaTitle: visa.visaTitle,
@@ -121,4 +124,86 @@ const getAllVisaResolver = async (_: any, __: any, context: any) => {
 export const allVisa = {
   type: new GraphQLList(AllVisaType),
   resolve: getAllVisaResolver,
+};
+
+interface visaFeedbackArgs {
+  id: string;
+  doc: string;
+  feedback: string;
+  status: 'unsubmitted' | 'pending' | 'approved' | 'rejected';
+}
+
+const visaFeedbackResolver = async (
+  _: any,
+  args: visaFeedbackArgs,
+  context: any,
+) => {
+  if (!context.authorized || !context.userId) {
+    throw new UnauthorizedError('Access denied', 'UNAUTHORIZED');
+  }
+  const user = await User.findById(context.userId);
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+  if (user.role !== 'hr') {
+    throw new UnauthorizedError('Unauthorized access', 'UNAUTHORIZED_ACCESS');
+  }
+
+  const { id, doc, feedback, status } = args;
+
+  const visa = await Visa.findOne({ user: id });
+  if (!visa) {
+    throw new NotFoundError('Visa not found');
+  }
+
+  if (doc === 'optReceipt') {
+    if (visa.optReceipt) {
+      visa.optReceipt.feedback = feedback ?? '';
+      visa.optReceipt.status = args.status;
+    } else {
+      throw new InternalServerError('Invalid document');
+    }
+  } else if (doc === 'optEad') {
+    if (visa.optEad) {
+      visa.optEad.feedback = feedback ?? '';
+      visa.optEad.status = status;
+    } else {
+      throw new InternalServerError('Invalid document');
+    }
+  } else if (doc === 'i983') {
+    if (visa.i983) {
+      visa.i983.feedback = feedback ?? '';
+      visa.i983.status = status;
+    } else {
+      throw new InternalServerError('Invalid document');
+    }
+  } else if (doc === 'i20') {
+    if (visa.i20) {
+      visa.i20.feedback = feedback ?? '';
+      visa.i20.status = status;
+    } else {
+      throw new InternalServerError('Invalid document');
+    }
+  } else {
+    throw new InternalServerError('Invalid document');
+  }
+
+  await visa.save();
+  return {
+    api: 'updateDocumentStatus',
+    type: 'mutation',
+    status: 'success',
+    message: 'Document status updated successfully',
+  };
+};
+
+export const visaFeedback = {
+  type: MessageType,
+  args: {
+    id: { type: GraphQLString },
+    doc: { type: GraphQLString },
+    feedback: { type: GraphQLString },
+    status: { type: GraphQLString },
+  },
+  resolve: visaFeedbackResolver,
 };
