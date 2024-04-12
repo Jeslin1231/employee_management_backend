@@ -1,7 +1,13 @@
-import { GraphQLString, GraphQLObjectType } from 'graphql';
+import { GraphQLString, GraphQLObjectType, GraphQLList } from 'graphql';
 import { MessageType } from './message';
-import { InternalServerError, InvalidInputError } from './error';
+import {
+  InternalServerError,
+  InvalidInputError,
+  UnauthorizedError,
+  NotFoundError,
+} from './error';
 import User from '../model/user';
+import Employee from '../model/employee';
 import { comparePassword, cryptPassword } from './password';
 import jwt from 'jsonwebtoken';
 import Token from '../model/token';
@@ -120,4 +126,111 @@ export const login = {
     password: { type: GraphQLString },
   },
   resolve: LoginResolver,
+};
+
+const UserWithInfoType = new GraphQLObjectType({
+  name: 'UserWithInfo',
+  fields: {
+    id: { type: GraphQLString },
+    username: { type: GraphQLString },
+    fullName: { type: GraphQLString },
+    email: { type: GraphQLString },
+    status: { type: GraphQLString },
+  },
+});
+
+const queryAllUserResolver = async (_: any, args: any, context: any) => {
+  if (!context.authorized || !context.userId) {
+    throw new UnauthorizedError('Access denied', 'UNAUTHORIZED');
+  }
+
+  const user = await User.findById(context.userId);
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  if (user.role !== 'hr') {
+    throw new UnauthorizedError('Access denied', 'UNAUTHORIZED');
+  }
+
+  try {
+    const users = await User.find();
+    const updatedusers = await Promise.all(
+      users.map(async user => {
+        let fullName = ''; // Initialize fullName variable
+        const employee = await Employee.findOne({ user: user._id });
+        if (employee) {
+          if (employee.middleName) {
+            fullName = `${employee.firstName} ${employee.middleName} ${employee.lastName}`;
+          } else {
+            fullName = `${employee.firstName} ${employee.lastName}`;
+          }
+        }
+
+        return {
+          id: user._id,
+          username: user.username,
+          email: user.email,
+          status: user.status,
+          fullName: fullName,
+        }; // Map token to match tokenHistory fields
+      }),
+    );
+
+    return updatedusers;
+  } catch (error) {
+    throw new InternalServerError('Failed to fetch user data');
+  }
+};
+
+export const queryAllUser = {
+  type: new GraphQLList(UserWithInfoType),
+  resolve: queryAllUserResolver,
+};
+
+const onBoardingFeedbackResolver = async (_: any, args: any, context: any) => {
+  if (!context.authorized || !context.userId) {
+    throw new UnauthorizedError('Access denied', 'UNAUTHORIZED');
+  }
+
+  const user = await User.findById(context.userId);
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+
+  if (user.role !== 'hr') {
+    throw new UnauthorizedError('Access denied', 'UNAUTHORIZED');
+  }
+
+  try {
+    const user = await User.findById(args.employee);
+    if (user) {
+      user.status = args.status;
+      await user.save();
+    }
+
+    const employee = await Employee.findOne({ user: args.employee });
+    if (employee) {
+      employee.feedback = args.feedback ?? '';
+      await employee.save();
+    }
+    return {
+      api: 'onBoardingFeedback',
+      type: 'mutation',
+      status: 'sucess',
+      message: 'Feedback submitted',
+    };
+  } catch (error) {
+    throw new InternalServerError('Failed to fetch user data');
+  }
+};
+
+export const onBoardingFeedback = {
+  type: MessageType,
+  args: {
+    employee: { type: GraphQLString },
+    feedback: { type: GraphQLString },
+    status: { type: GraphQLString },
+  },
+  resolve: onBoardingFeedbackResolver,
 };
