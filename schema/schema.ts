@@ -11,7 +11,7 @@ import {
   updateEmergencyContactSection,
   getPersonalAllInfo,
 } from './personalInfo';
-import { visa } from './visa';
+import { visa, allVisa } from './visa';
 
 const Message = new GraphQLObjectType({
   name: 'Hello',
@@ -39,6 +39,7 @@ const schema = new GraphQLSchema({
       employee: queryEmployee,
       getAllTokenHistory: getAllTokenHistory,
       visa: visa,
+      allVisa: allVisa,
     },
   }),
   mutation: new GraphQLObjectType({
