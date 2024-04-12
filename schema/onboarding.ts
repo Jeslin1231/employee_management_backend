@@ -122,13 +122,23 @@ const OnboardingDataInput = new GraphQLInputObjectType({
   },
 });
 
-const queryEmployeeDataResolver = async (_: any, __: any, context: any) => {
+const queryEmployeeDataResolver = async (_: any, args: any, context: any) => {
   if (!context.authorized || !context.userId) {
     throw new UnauthorizedError('Access denied', 'UNAUTHORIZED');
   }
 
+  const user = await User.findById(context.userId);
+  if (!user) {
+    throw new InvalidInputError('User not found', 'user');
+  }
+
   try {
-    const employee = await Employee.findOne({ user: context.userId });
+    let employee;
+    if (user.role === 'hr') {
+      employee = await Employee.findOne({ user: args.employee });
+    } else {
+      employee = await Employee.findOne({ user: context.userId });
+    }
     if (!employee) {
       throw new InvalidInputError('Employee not found', 'user');
     }
@@ -140,6 +150,7 @@ const queryEmployeeDataResolver = async (_: any, __: any, context: any) => {
 
 export const queryEmployee = {
   type: EmployeeType,
+  args: { employee: { type: GraphQLString } },
   resolve: queryEmployeeDataResolver,
 };
 

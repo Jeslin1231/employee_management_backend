@@ -1,6 +1,6 @@
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 import { checkToken, createToken, getAllTokenHistory } from './token';
-import { login, register } from './user';
+import { login, register, queryAllUser, onBoardingFeedback } from './user';
 import { getAllEmployeesProfiles } from './profiles_hr';
 import { queryEmployee, onboarding } from './onboarding';
 import {
@@ -11,7 +11,13 @@ import {
   updateEmergencyContactSection,
   getPersonalAllInfo,
 } from './personalInfo';
-import { visa, allVisa, visaFeedback, updateVisaStatus } from './visa';
+import {
+  visa,
+  allVisa,
+  visaFeedback,
+  updateVisaStatus,
+  sendVisaDocNotification,
+} from './visa';
 
 const Message = new GraphQLObjectType({
   name: 'Hello',
@@ -40,6 +46,7 @@ const schema = new GraphQLSchema({
       getAllTokenHistory: getAllTokenHistory,
       visa: visa,
       allVisa: allVisa,
+      allUser: queryAllUser,
     },
   }),
   mutation: new GraphQLObjectType({
@@ -55,6 +62,8 @@ const schema = new GraphQLSchema({
       updateEmergencyContactSection: updateEmergencyContactSection,
       visaFeedback: visaFeedback,
       updateVisaStatus: updateVisaStatus,
+      sendVisaDocNotification: sendVisaDocNotification,
+      onBoardingFeedback: onBoardingFeedback,
     },
   }),
 });

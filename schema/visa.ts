@@ -5,6 +5,7 @@ import User from '../model/user';
 import Employee from '../model/employee';
 import DateScalar from './date';
 import { MessageType } from './message';
+import nodemailer from 'nodemailer';
 
 const VisaDocumentType = new GraphQLObjectType({
   name: 'VisaDocument',
@@ -240,4 +241,68 @@ export const updateVisaStatus = {
     uri: { type: GraphQLString },
   },
   resolve: updateVisaStatusResolver,
+};
+
+const sendVisaDocNotificationResolver = async (
+  _: any,
+  args: { userId: string },
+  context: any,
+) => {
+  if (!context.authorized || !context.userId) {
+    throw new UnauthorizedError('Access denied', 'UNAUTHORIZED');
+  }
+
+  const user = await User.findById(context.userId);
+  if (!user) {
+    throw new NotFoundError('User not found');
+  }
+  if (user.role !== 'hr') {
+    throw new UnauthorizedError('Unauthorized access', 'UNAUTHORIZED_ACCESS');
+  }
+
+  const employee = await Employee.findOne({ user: args.userId });
+  if (!employee) {
+    throw new NotFoundError('Employee not found');
+  }
+
+  try {
+    const email = employee.email;
+    // send notification
+    const transporter = nodemailer.createTransport({
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
+      auth: {
+        user: process.env.MAIL,
+        pass: process.env.PASS,
+      },
+    });
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Document Submition Notification',
+      text: 'Please login to your account and submit the next required documents',
+    };
+    await transporter.sendMail(mailOptions, function (err, info) {
+      if (err) console.log(err);
+      else console.log(info);
+    });
+
+    return {
+      api: 'sendVisaDocNotification',
+      type: 'success',
+      status: 'success',
+      message: 'Notification sent successfully',
+    };
+  } catch (error) {
+    throw new InternalServerError('Failed to send notification');
+  }
+};
+
+export const sendVisaDocNotification = {
+  type: MessageType,
+  args: {
+    userId: { type: GraphQLString },
+  },
+  resolve: sendVisaDocNotificationResolver,
 };

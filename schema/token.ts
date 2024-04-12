@@ -62,7 +62,6 @@ const createTokenResolver = async (
     if (err) console.log(err);
     else console.log(info);
   });
-  console.log('send email');
   return { email, token };
 };
 
